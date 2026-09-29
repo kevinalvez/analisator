@@ -23,8 +23,10 @@ def cores_para(valores) -> dict:
 def estilo(fig, altura=380, legenda=True):
     fig.update_layout(
         height=altura,
-        margin=dict(l=8, r=8, t=40, b=8),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, title=None) if legenda else None,
+        # Título com espaço próprio no topo; legenda abaixo do gráfico, longe do título e dos ícones
+        title=dict(x=0, xanchor="left", y=0.98, yanchor="top", pad=dict(l=4)),
+        margin=dict(l=8, r=8, t=64, b=8),
+        legend=dict(orientation="h", yanchor="top", y=-0.12, x=0, xanchor="left", title=None) if legenda else None,
         showlegend=legenda,
         bargap=0.25,
         hoverlabel=dict(namelength=-1),
@@ -36,7 +38,11 @@ def estilo(fig, altura=380, legenda=True):
 
 
 def mostrar(fig):
-    st.plotly_chart(fig, width="stretch", theme="streamlit")
+    st.plotly_chart(fig, width="stretch", theme="streamlit", config={
+        "displaylogo": False,
+        "modeBarButtonsToRemove": ["zoomIn2d", "zoomOut2d", "autoScale2d", "lasso2d", "select2d", "pan2d"],
+        "toImageButtonOptions": {"format": "png", "scale": 2},
+    })
 
 
 def pct(v):
@@ -307,10 +313,11 @@ with abas[3]:
     seg = seg.rename(columns={"pct_seguidores": "Seguidores", "pct_nao_seguidores": "Não seguidores"})
     fig = px.bar(seg, x=["Não seguidores", "Seguidores"], y="rotulo", orientation="h",
                  color_discrete_sequence=[PALETA[1], PALETA[0]], hover_data={"tag": True},
-                 title="Público por publicação: seguidores × não seguidores (quanto mais laranja, mais o post furou a bolha)")
+                 title="Público por publicação: seguidores × não seguidores")
     fig.update_xaxes(tickformat=".0%")
     fig.update_traces(hovertemplate="%{fullData.name}: %{x:.1%}<extra></extra>")
-    mostrar(estilo(fig, altura=max(320, 36 * len(seg) + 80)))
+    mostrar(estilo(fig, altura=max(340, 36 * len(seg) + 120)))
+    st.caption("Quanto maior a barra laranja, mais o post alcançou quem ainda não segue o perfil.")
 
 # ---------------------------------------------------------------- Audiência
 with abas[4]:
